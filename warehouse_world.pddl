@@ -30,5 +30,55 @@
       :precondition (and (unstarted ?s) (not (complete ?s)) (ships ?s ?o) (available ?l) (packing-location ?l))
       :effect (and (started ?s) (packing-at ?s ?l) (not (unstarted ?s)) (not (available ?l)))
    )
-
+   
+   (:action robotMove
+      :parameters (?source - location ?dest - location ?robot - robot)
+      :precondition (and (connected ?source ?dest)
+                         (at ?robot ?source)
+                         (no-robot ?dest))
+      :effect (and (not (at ?robot ?source))
+                   (at ?robot ?dest)
+                   (no-robot ?source)
+                   (not (no-robot ?dest)))
+   )
+   
+   (:action robotMoveWithPallette
+      :parameters (?source - location ?dest - location ?robot - robot ?pallette - pallette)
+      :precondition (and (or (free ?robot) (has ?robot ?pallette))
+                         (connected ?source ?dest)
+                         (at ?robot ?source)
+                         (at ?pallette ?source)
+                         (no-robot ?dest)
+                         (no-pallette ?dest))
+      :effect (and (has ?robot ?pallette) 
+                   (at ?pallette ?dest) (no-pallette ?source) (not (no-pallette ?dest))
+                   (at ?robot ?dest) (no-robot ?source) (not (no-robot ?dest)))
+   )
+   
+   (:action moveItemFromPalletteToShipment
+      :parameters (?location - location ?shipment - shipment ?saleitem - saleitem ?pallette - pallette ?order - order)
+      :precondition (and (ships ?shipment ?order) 
+                         (not (complete ?shipment)) 
+                         (orders ?order ?saleitem) 
+                         (started ?shipment)
+                         (contains ?pallette ?saleitem) 
+                         (at ?pallette ?location) 
+                         (packing-at ?shipment ?location) 
+                         (not (includes ?shipment ?saleitem))
+                    )
+      :effect (and (not (contains ?pallette ?saleitem)) (includes ?shipment ?saleitem))
+   )
+   
+   (:action completeShipment
+      :parameters (?shipment - shipment ?order - order ?location - location)
+      :precondition (and (packing-at ?shipment ?location)
+                         (ships ?shipment ?order)
+                         (started ?shipment)
+                         (not (complete ?shipment))
+                    )
+      :effect (and (complete ?shipment)
+                   (not (packing-at ?shipment ?location))
+                   (available ?location))
+   )
+  
 )
