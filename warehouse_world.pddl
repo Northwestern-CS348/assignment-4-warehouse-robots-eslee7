@@ -51,6 +51,7 @@
                          (no-robot ?dest)
                          (no-pallette ?dest))
       :effect (and (has ?robot ?pallette) 
+                   (not (at ?robot ?source)) (not (at ?pallette ?source))
                    (at ?pallette ?dest) (no-pallette ?source) (not (no-pallette ?dest))
                    (at ?robot ?dest) (no-robot ?source) (not (no-robot ?dest)))
    )
